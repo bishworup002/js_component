@@ -83,20 +83,27 @@
         .days div {
             padding: 10px;
             cursor: pointer;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 2px auto;
         }
-        .days div:hover:not(.empty) {
+        .days div:hover:not(.empty):not(.disabled) {
             background-color: #f0f0f0;
         }
         .days .selected {
-            background-color: #007bff;
+            background-color: #000;
             color: white;
-            border-radius: 50%;
         }
         .days .in-range {
-            background-color: #e6f2ff;
+            background-color: #e6e6e6;
         }
-        .days .empty {
-            visibility: hidden;
+        .days .empty, .days .disabled {
+            color: #ccc;
+            cursor: default;
         }
         .date-options {
             margin-top: 20px;
@@ -111,6 +118,9 @@
             background-color: white;
             border-radius: 20px;
             cursor: pointer;
+        }
+        .date-options button:hover {
+            background-color: #f0f0f0;
         }
     </style>
 </head>
@@ -147,6 +157,8 @@
         let checkInDate = null;
         let checkOutDate = null;
         let dateRange = 0;
+        let today = new Date();
+        today.setHours(0, 0, 0, 0);
 
         function openModal() {
             document.getElementById('dateModal').style.display = 'block';
@@ -194,14 +206,19 @@
             for (let i = 1; i <= daysInMonth; i++) {
                 const dayElement = document.createElement('div');
                 dayElement.textContent = i;
-                dayElement.onclick = () => selectDate(new Date(year, month, i));
                 
                 const currentDate = new Date(year, month, i);
-                if (isDateInRange(currentDate)) {
-                    dayElement.classList.add('in-range');
-                }
-                if (isSameDate(currentDate, checkInDate) || isSameDate(currentDate, checkOutDate)) {
-                    dayElement.classList.add('selected');
+                if (currentDate < today) {
+                    dayElement.classList.add('disabled');
+                } else {
+                    dayElement.onclick = () => selectDate(currentDate);
+                    
+                    if (isDateInRange(currentDate)) {
+                        dayElement.classList.add('in-range');
+                    }
+                    if (isSameDate(currentDate, checkInDate) || isSameDate(currentDate, checkOutDate)) {
+                        dayElement.classList.add('selected');
+                    }
                 }
                 
                 days.appendChild(dayElement);
