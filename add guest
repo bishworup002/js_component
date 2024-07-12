@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Guests</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .search-bar {
+            display: flex;
+            gap: 10px;
+            background-color: #f7f7f7;
+            border-radius: 40px;
+            padding: 10px;
+            align-items: center;
+        }
+        .search-bar div {
+            padding: 10px;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+        .search-button {
+            background-color: #ff385c;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+        #guestModal {
+            display: none;
+            position: absolute;
+            top: 60px;
+            right: 10px;
+            background-color: white;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            width: 300px;
+        }
+        .guest-option {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .guest-info {
+            flex-grow: 1;
+        }
+        .guest-type {
+            font-weight: bold;
+        }
+        .guest-age {
+            font-size: 0.8em;
+            color: #717171;
+        }
+        .guest-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .guest-button {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 1px solid #b0b0b0;
+            background-color: white;
+            color: #717171;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .guest-button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+        .guest-count {
+            font-size: 16px;
+            min-width: 20px;
+            text-align: center;
+        }
+        .pets-info {
+            font-size: 0.8em;
+            color: #717171;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="search-bar">
+        <div>Where</div>
+        <div>Check in</div>
+        <div>Check out</div>
+        <div id="addGuestsButton">Who<br>Add guests</div>
+        <button class="search-button">Search</button>
+    </div>
+
+    <div id="guestModal">
+        <div class="guest-option">
+            <div class="guest-info">
+                <div class="guest-type">Adults</div>
+                <div class="guest-age">Ages 13 or above</div>
+            </div>
+            <div class="guest-controls">
+                <button class="guest-button" data-type="adults" data-action="decrement" disabled>-</button>
+                <span class="guest-count" data-type="adults">0</span>
+                <button class="guest-button" data-type="adults" data-action="increment">+</button>
+            </div>
+        </div>
+        <div class="guest-option">
+            <div class="guest-info">
+                <div class="guest-type">Children</div>
+                <div class="guest-age">Ages 2 - 12</div>
+            </div>
+            <div class="guest-controls">
+                <button class="guest-button" data-type="children" data-action="decrement" disabled>-</button>
+                <span class="guest-count" data-type="children">0</span>
+                <button class="guest-button" data-type="children" data-action="increment">+</button>
+            </div>
+        </div>
+        <div class="guest-option">
+            <div class="guest-info">
+                <div class="guest-type">Infants</div>
+                <div class="guest-age">Under 2</div>
+            </div>
+            <div class="guest-controls">
+                <button class="guest-button" data-type="infants" data-action="decrement" disabled>-</button>
+                <span class="guest-count" data-type="infants">0</span>
+                <button class="guest-button" data-type="infants" data-action="increment">+</button>
+            </div>
+        </div>
+        <div class="guest-option">
+            <div class="guest-info">
+                <div class="guest-type">Pets</div>
+                <div class="pets-info">Bringing a service animal?</div>
+            </div>
+            <div class="guest-controls">
+                <button class="guest-button" data-type="pets" data-action="decrement" disabled>-</button>
+                <span class="guest-count" data-type="pets">0</span>
+                <button class="guest-button" data-type="pets" data-action="increment">+</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const addGuestsButton = document.getElementById('addGuestsButton');
+        const guestModal = document.getElementById('guestModal');
+        const guestCounts = {
+            adults: 0,
+            children: 0,
+            infants: 0,
+            pets: 0
+        };
+
+        addGuestsButton.addEventListener('click', () => {
+            guestModal.style.display = guestModal.style.display === 'none' ? 'block' : 'none';
+        });
+
+        document.querySelectorAll('.guest-button').forEach(button => {
+            button.addEventListener('click', () => {
+                const type = button.dataset.type;
+                const action = button.dataset.action;
+                const countElement = button.parentElement.querySelector('.guest-count');
+                const decrementButton = button.parentElement.querySelector('[data-action="decrement"]');
+
+                if (action === 'increment') {
+                    guestCounts[type]++;
+                } else if (action === 'decrement' && guestCounts[type] > 0) {
+                    guestCounts[type]--;
+                }
+
+                countElement.textContent = guestCounts[type];
+                decrementButton.disabled = guestCounts[type] === 0;
+
+                updateAddGuestsButton();
+            });
+        });
+
+        function updateAddGuestsButton() {
+            const totalGuests = guestCounts.adults + guestCounts.children;
+            let guestText = totalGuests > 0 ? `${totalGuests} guest${totalGuests > 1 ? 's' : ''}` : 'Add guests';
+
+            if (guestCounts.infants > 0) {
+                guestText += `, ${guestCounts.infants} infant${guestCounts.infants > 1 ? 's' : ''}`;
+            }
+            if (guestCounts.pets > 0) {
+                guestText += `, ${guestCounts.pets} pet${guestCounts.pets > 1 ? 's' : ''}`;
+            }
+
+            addGuestsButton.innerHTML = `Who<br>${guestText}`;
+        }
+
+        // Close modal when clicking outside
+        window.addEventListener('click', (e) => {
+            if (!guestModal.contains(e.target) && e.target !== addGuestsButton) {
+                guestModal.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
